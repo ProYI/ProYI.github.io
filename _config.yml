@@ -3,12 +3,12 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: 踏上秘密之旅
 subtitle:
-description:
+description: Follow the notes upon a journey,At first sight marks one's destiny...
 keywords:
-author: Pengchen
-language:
+author: ProYI
+language: zh-Hans
 timezone:
 
 # URL
@@ -73,7 +73,8 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: next
+plugins: hexo-generate-feed
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
@@ -81,3 +82,10 @@ deploy:
   type: git
   repo: git@github.com:ProYI/ProYI.github.io.git  #这里的网址填你自己的
   branch: master
+
+githubEmojis:
+  enable: true
+  idName: github-emoji
+  unicode: false
+  styles:
+  localEmojis:

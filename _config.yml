@@ -99,7 +99,7 @@ service_worker:
   verbose: true
 
 filter_optimize:
-  enable: false
+  enable: true
   # remove static resource query string
   #   - like `?v=1.0.0`
   remove_query_string: true

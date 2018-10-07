@@ -1687,6 +1687,57 @@ pre .javascript .function {
 .fancybox-close:hover {
   border: none;
 }
+.post-copyright {
+  width: 90%;
+  max-width: 45em;
+  margin: 2.8em auto 0;
+  padding: 0.5em 1em;
+  border: 1px solid #d3d3d3;
+  font-size: 0.93rem;
+  line-height: 1.6em;
+  word-break: break-all;
+  background: rgba(255,255,255,0.4);
+}
+.post-copyright p {
+  margin: 0;
+}
+.post-copyright span {
+  display: inline-block;
+  width: 5.2em;
+  color: #b5b5b5;
+  font-weight: bold;
+}
+.post-copyright .raw {
+  margin-left: 1em;
+  width: 5em;
+}
+.post-copyright a {
+  color: #808080;
+  border-bottom: 0;
+}
+.post-copyright a:hover {
+  color: #a3d2a3;
+  text-decoration: underline;
+}
+.post-copyright:hover .fa-clipboard {
+  color: #000;
+}
+.post-copyright .post-url:hover {
+  font-weight: normal;
+}
+.post-copyright .copy-path {
+  margin-left: 1em;
+  width: 1em;
+}
+@media (max-width: 767px) {
+  .post-copyright .copy-path {
+    display: none;
+  }
+}
+.post-copyright .copy-path:hover {
+  color: #808080;
+  cursor: pointer;
+}
 .rtl.post-body p,
 .rtl.post-body a,
 .rtl.post-body h1,
@@ -1860,7 +1911,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #2effa2;
+  background: #6affff;
 }
 .links-of-blogroll {
   font-size: 13px;

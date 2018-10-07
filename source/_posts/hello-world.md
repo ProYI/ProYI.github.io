@@ -1,16 +1,23 @@
 ---
 title: Hello World
-data: 
-updata: 
-categories: 
-- life
-- Hexo
-- Hello Hexo
-tags: [Hexo, Blog, FirstTime]
+categories:
+  - life
+  - Hexo
+  - Hello Hexo
+tags:
+  - Hexo
+  - Blog
+  - FirstTime
+copyright: true
+abbrlink: 4a17b156
+image: /images/hexo.png
+data:
+updata:
 ---
 ## Fist to Hexo
 Hello Hexo!  
-
+<!-- more -->
+{% img "url=/images/hexo.png"%}
 很开心，自己的个人主页终于搭建的差不多了，基本上可以使用了，以后就是慢慢完善咯！  
 感谢网友们详细的文档及分享精神，我参照的是[这个教程](https://reuixiy.github.io/technology/computer/computer-aided-art/2017/06/09/hexo-next-optimization.html)，极其详细，而且博主有一种非程序员式的审美能力，我自认为达不到这种水平，css用的还是很溜的，自愧不如！有些艺术细胞的确是看人的...😅
 脸不红心不跳的说一下，java程序员不擅长写css很正常！！所以我就抄了博主的css代码，😝😝😝  

@@ -13,6 +13,7 @@ abbrlink: 4a17b156
 image: /images/hexo.png
 data:
 updata:
+sticky: 
 ---
 ## Fist to Hexo
 Hello Hexo!  

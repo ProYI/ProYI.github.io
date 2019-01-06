@@ -1,14 +1,15 @@
 ---
-title: javaweb项目中的git初始化.md
-tags:  
+title: javaweb项目中的git初始化
+tags:
   - java web
   - git初始化
-date: 2018-11-12 23:06:55
-permalink:
-categories:  
+categories:
   - 技术
   - Java
   - Java web
+abbrlink: cda789b3
+date: 2018-11-12 23:06:55
+permalink:
 description:
 copyright:
 sticky:

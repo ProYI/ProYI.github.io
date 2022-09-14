@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#fff">
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="https://fonts.cat.net/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/logo.ico?v=5.1.4">
+
+
+
+  <link rel="mask-icon" href="/images/safari-pinned-tab.svg?v=5.1.4" color="#fff">
+
+
+
+
+
+  <meta name="keywords" content="frp,内网穿透,反向代理," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ProYI的冲浪时光" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="在进行微信公众号的网页开发过程中，发现微信公众号配置支持http及https的80及443端口，调用时只能使用域名调用，无法在本地环境测试。只能在拥有公网IP的服务器上调试，十分不便，在搜索过后，据说frp工具可以实现反向代理且性能更好，特此记录本次部署过程">
+<meta name="keywords" content="frp,内网穿透,反向代理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Frp实现内网穿透">
+<meta property="og:url" content="https://ProYI.github.io/post/401ca2c1.html">
+<meta property="og:site_name" content="ProYI的冲浪时光">
+<meta property="og:description" content="在进行微信公众号的网页开发过程中，发现微信公众号配置支持http及https的80及443端口，调用时只能使用域名调用，无法在本地环境测试。只能在拥有公网IP的服务器上调试，十分不便，在搜索过后，据说frp工具可以实现反向代理且性能更好，特此记录本次部署过程">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://proyi.github.io/post/401ca2c1.html">
+<meta property="og:updated_time" content="2022-02-06T08:07:56.792Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Frp实现内网穿透">
+<meta name="twitter:description" content="在进行微信公众号的网页开发过程中，发现微信公众号配置支持http及https的80及443端口，调用时只能使用域名调用，无法在本地环境测试。只能在拥有公网IP的服务器上调试，十分不便，在搜索过后，据说frp工具可以实现反向代理且性能更好，特此记录本次部署过程">
+<meta name="twitter:image" content="https://proyi.github.io/post/401ca2c1.html">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":true,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"perspectiveLeftIn","post_header":"fadeIn","post_body":"fadeIn","coll_header":"perspectiveLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://ProYI.github.io/post/401ca2c1.html"/>
+
+
+
+
+
+  <title>使用Frp实现内网穿透 | ProYI的冲浪时光</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-127080397-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ProYI的冲浪时光</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">with TT, so great!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-top">
+          <a href="/top/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-signal"></i> <br />
+            
+            top
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <!---->
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://ProYI.github.io/post/401ca2c1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ProYI">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ProYI的冲浪时光">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用Frp实现内网穿透</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-01T20:34:26+08:00">
+                2018-11-01
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2022-02-06T16:07:56+08:00">
+                2022-02-06
+              </time>
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/post/401ca2c1.html" class="leancloud_visitors" data-flag-title="使用Frp实现内网穿透">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.4k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p class="description">&#x5728;&#x8FDB;&#x884C;&#x5FAE;&#x4FE1;&#x516C;&#x4F17;&#x53F7;&#x7684;&#x7F51;&#x9875;&#x5F00;&#x53D1;&#x8FC7;&#x7A0B;&#x4E2D;&#xFF0C;&#x53D1;&#x73B0;&#x5FAE;&#x4FE1;&#x516C;&#x4F17;&#x53F7;&#x914D;&#x7F6E;&#x652F;&#x6301;http&#x53CA;https&#x7684;80&#x53CA;443&#x7AEF;&#x53E3;&#xFF0C;&#x8C03;&#x7528;&#x65F6;&#x53EA;&#x80FD;&#x4F7F;&#x7528;&#x57DF;&#x540D;&#x8C03;&#x7528;&#xFF0C;&#x65E0;&#x6CD5;&#x5728;&#x672C;&#x5730;&#x73AF;&#x5883;&#x6D4B;&#x8BD5;&#x3002;&#x53EA;&#x80FD;&#x5728;&#x62E5;&#x6709;&#x516C;&#x7F51;IP&#x7684;&#x670D;&#x52A1;&#x5668;&#x4E0A;&#x8C03;&#x8BD5;&#xFF0C;&#x5341;&#x5206;&#x4E0D;&#x4FBF;&#xFF0C;&#x5728;&#x641C;&#x7D22;&#x8FC7;&#x540E;&#xFF0C;&#x636E;&#x8BF4;frp&#x5DE5;&#x5177;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x53CD;&#x5411;&#x4EE3;&#x7406;&#x4E14;&#x6027;&#x80FD;&#x66F4;&#x597D;&#xFF0C;&#x7279;&#x6B64;&#x8BB0;&#x5F55;&#x672C;&#x6B21;&#x90E8;&#x7F72;&#x8FC7;&#x7A0B;</p>
+
+<p><img src="https://" alt="" style="width:100%"></p>
+<a id="more"></a>
+<h2 id="VPS"><a href="#VPS" class="headerlink" title="VPS"></a>VPS</h2><p>&#x9996;&#x5148;&#x5F97;&#x6709;&#x4E00;&#x4E2A;&#x516C;&#x7F51;IP&#x7684;&#x670D;&#x52A1;&#x5668;&#xFF0C;&#x4E0D;&#x7BA1;&#x662F;VPS&#xFF0C;&#x8FD8;&#x662F;&#x4E91;&#x670D;&#x52A1;&#x5668;&#xFF0C;&#x90FD;&#x4F1A;&#x5206;&#x914D;&#x4E00;&#x4E2A;&#x516C;&#x7F51;&#x53EF;&#x4EE5;&#x8BBF;&#x95EE;&#x7684;IP&#x5730;&#x5740;&#x7ED9;&#x4F60;&#xFF0C;&#x8FDE;&#x63A5;&#x5230;&#x670D;&#x52A1;&#x5668;&#x540E;&#xFF0C;&#x5B89;&#x88C5;&#x4E0A;Linux&#x7CFB;&#x7EDF;&#xFF0C;&#x4E00;&#x822C;&#x5747;&#x4E3A;CentOS 7.0</p>
+<h2 id="&#x57DF;&#x540D;"><a href="#&#x57DF;&#x540D;" class="headerlink" title="&#x57DF;&#x540D;"></a>&#x57DF;&#x540D;</h2><p>&#x53EF;&#x4EE5;&#x5728;&#x963F;&#x91CC;&#x6216;&#x8005;&#x5176;&#x4ED6;&#x7684;&#x57DF;&#x540D;&#x63D0;&#x4F9B;&#x5546;&#x90A3;&#x91CC;&#x8D2D;&#x4E70;&#x4E00;&#x4E2A;&#x57DF;&#x540D;&#xFF0C;&#x5E76;&#x5C06;&#x57DF;&#x540D;&#x548C;&#x4E91;&#x670D;&#x52A1;&#x5730;&#x5740;&#x7684;IP&#x76F8;&#x5173;&#x8054;&#xFF0C;&#x767E;&#x5EA6;&#x6709;&#x5F88;&#x591A;&#x64CD;&#x4F5C;&#x6B65;&#x9AA4;&#xFF0C;&#x4E0D;&#x518D;&#x8D58;&#x8FF0;</p>
+<h2 id="&#x5B89;&#x88C5;frp"><a href="#&#x5B89;&#x88C5;frp" class="headerlink" title="&#x5B89;&#x88C5;frp"></a>&#x5B89;&#x88C5;frp</h2><p>&#x4F7F;&#x7528;root&#x6743;&#x9650;&#x5B89;&#x88C5;frp&#x670D;&#x52A1;&#x7AEF;<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. &#x5982;&#x679C;&#x6CA1;&#x6709;wget&#x547D;&#x4EE4;&#xFF0C;&#x5148;&#x5B89;&#x88C5;wget&#x3002;&#x67E5;&#x770B;&#x662F;&#x5426;&#x5B89;&#x88C5;wget:rpm -qa|grep &quot;wget&quot; &#x5B89;&#x88C5;&#x547D;&#x4EE4;:yum -y install wget</span><br><span class="line">2. wget --no-check-certificate https://raw.githubusercontent.com/clangcn/onekey-install-shell/master/frps/install-frps.sh -O ./install-frps.sh  </span><br><span class="line">3. chmod 700 ./install-frps.sh</span><br><span class="line">4. ./install-frps.sh install</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="&#x7AEF;&#x53E3;&#x914D;&#x7F6E;"><a href="#&#x7AEF;&#x53E3;&#x914D;&#x7F6E;" class="headerlink" title="&#x7AEF;&#x53E3;&#x914D;&#x7F6E;"></a>&#x7AEF;&#x53E3;&#x914D;&#x7F6E;</h2><p>Linux&#x7EC8;&#x7AEF;&#x4E2D;&#x9700;&#x8981;&#x8F93;&#x4E00;&#x4E9B;&#x53C2;&#x6570;&#xFF0C;&#x5168;&#x90E8;&#x53C2;&#x6570;&#x90FD;&#x6709;&#x9ED8;&#x8BA4;&#x503C;&#xFF0C;&#x76F4;&#x63A5;&#x56DE;&#x8F66;&#x5C31;&#x662F;&#x8F93;&#x5165;&#x9ED8;&#x8BA4;&#x503C;&#xFF1A;<br>Please input frps bind_port <a href="Default Server Port: 5443">1-65535</a>: #&#x8F93;&#x5165;frp&#x63D0;&#x4F9B;&#x670D;&#x52A1;&#x7684;&#x7AEF;&#x53E3;&#xFF0C;&#x7528;&#x4E8E;&#x670D;&#x52A1;&#x5668;&#x7AEF;&#x548C;&#x5BA2;&#x6237;&#x7AEF;&#x901A;&#x4FE1;&#xFF0C;&#x9ED8;&#x8BA4;&#x5373;&#x53EF;<br>Please input frps vhost_http_port <a href="Default vhost_http_port: 80">1-65535</a>: #&#x8F93;&#x5165;frp&#x8FDB;&#x884C;http&#x7A7F;&#x900F;&#x7684;http&#x670D;&#x52A1;&#x7AEF;&#x53E3;&#xFF0C;&#x5EFA;&#x8BAE;&#x4E0D;&#x7528;&#x9ED8;&#x8BA4;<br>Please input frps vhost_https_port <a href="Default vhost_https_port: 443">1-65535</a>: #&#x8F93;&#x5165;frp&#x8FDB;&#x884C;https&#x7A7F;&#x900F;&#x7684;https&#x670D;&#x52A1;&#x7AEF;&#x53E3;&#xFF0C;&#x5EFA;&#x8BAE;&#x4E0D;&#x7528;&#x9ED8;&#x8BA4;<br>Please input frps dashboard_port <a href="Default dashboard_port: 6443">1-65535</a>:#&#x8F93;&#x5165;frp&#x7684;&#x63A7;&#x5236;&#x53F0;&#x670D;&#x52A1;&#x7AEF;&#x53E3;&#xFF0C;&#x7528;&#x4E8E;&#x67E5;&#x770B;frp&#x5DE5;&#x4F5C;&#x72B6;&#x6001;&#xFF0C;&#x9ED8;&#x8BA4;&#x5373;&#x53EF;<br>Please input dashboard_user (Default: admin):#&#x767B;&#x5F55;&#x63A7;&#x5236;&#x53F0;&#x7684;&#x7528;&#x6237;&#x540D;&#xFF0C;&#x9ED8;&#x8BA4;&#x5373;&#x53EF;<br>Please input dashboard_pwd (Default: kpkpM7VZ):#&#x767B;&#x5F55;&#x63A7;&#x5236;&#x53F0;&#x7684;&#x5BC6;&#x7801;&#xFF0C;&#x5982;&#x679C;&#x8BB0;&#x4E0D;&#x4F4F;&#x9ED8;&#x8BA4;&#x7684;&#x5EFA;&#x8BAE;&#x4FEE;&#x6539;<br>Please input privilege_token (Default: 9m2UAOWa6hx5Eise):#&#x8F93;&#x5165;frp&#x670D;&#x52A1;&#x5668;&#x548C;&#x5BA2;&#x6237;&#x7AEF;&#x901A;&#x4FE1;&#x7684;&#x5BC6;&#x7801;&#xFF0C;&#x9ED8;&#x8BA4;&#x662F;&#x968F;&#x673A;&#x751F;&#x6210;&#x7684;&#xFF0C;&#x9ED8;&#x8BA4;&#x5373;&#x53EF;<br>Please input frps max_pool_count <a href="Default max_pool_count: 50">1-200</a>:#&#x8BBE;&#x7F6E;&#x6BCF;&#x4E2A;&#x4EE3;&#x7406;&#x53EF;&#x4EE5;&#x521B;&#x5EFA;&#x7684;&#x8FDE;&#x63A5;&#x6C60;&#x4E0A;&#x9650;&#xFF0C;&#x9ED8;&#x8BA4;50  </p>
+<h2 id="&#x8BBF;&#x95EE;&#x7BA1;&#x7406;&#x9875;&#x9762;"><a href="#&#x8BBF;&#x95EE;&#x7BA1;&#x7406;&#x9875;&#x9762;" class="headerlink" title="&#x8BBF;&#x95EE;&#x7BA1;&#x7406;&#x9875;&#x9762;"></a>&#x8BBF;&#x95EE;&#x7BA1;&#x7406;&#x9875;&#x9762;</h2><p>&#x5730;&#x5740;&#xFF1A;&#x57DF;&#x540D;:6443&#x3002;&#x6216;&#x8005;&#x516C;&#x7F51;IP:6443&#x90FD;&#x53EF;&#x4EE5;  </p>
+<h2 id="&#x4FEE;&#x6539;frp&#x670D;&#x52A1;&#x7AEF;&#x7684;&#x914D;&#x7F6E;"><a href="#&#x4FEE;&#x6539;frp&#x670D;&#x52A1;&#x7AEF;&#x7684;&#x914D;&#x7F6E;" class="headerlink" title="&#x4FEE;&#x6539;frp&#x670D;&#x52A1;&#x7AEF;&#x7684;&#x914D;&#x7F6E;"></a>&#x4FEE;&#x6539;frp&#x670D;&#x52A1;&#x7AEF;&#x7684;&#x914D;&#x7F6E;</h2><p>&#x5982;&#x679C;&#x4E4B;&#x540E;&#x6709;&#x54EA;&#x4E9B;&#x7AEF;&#x53E3;&#x9700;&#x8981;&#x4FEE;&#x6539;&#xFF0C;&#x53EF;&#x4EE5;&#x5728;<code>/usr/local/frps/frps.ini</code>&#x8FD9;&#x4E2A;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x4FEE;&#x6539;<br>&#x670D;&#x52A1;&#x7AEF;&#x914D;&#x7F6E;<br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">#bind_addr&#x4E3A;&#x672C;&#x673A;IP</span><br><span class="line">#bind_port&#x4E3A;frp&#x5BF9;&#x5BA2;&#x6237;&#x7AEF;&#x7684;&#x7AEF;&#x53E3;&#x53F7;</span><br><span class="line">#uto_token&#x662F;&#x5BA2;&#x6237;&#x7AEF;&#x8FDE;&#x63A5;&#x670D;&#x52A1;&#x5668;&#x7AEF;&#x7684;&#x53E3;&#x4EE4;</span><br><span class="line"></span><br><span class="line"># [common] is integral section</span><br><span class="line">[common]</span><br><span class="line"># A literal address or host name for IPv6 must be enclosed</span><br><span class="line"># in square brackets, as in &quot;[::1]:80&quot;, &quot;[ipv6-host]:http&quot; or &quot;[ipv6-host%zone]:80&quot;</span><br><span class="line">bind_addr = 0.0.0.0 //&#x9ED8;&#x8BA4;&#x672C;&#x5730;</span><br><span class="line">bind_port = frp&#x63D0;&#x4F9B;&#x670D;&#x52A1;&#x7684;&#x7AEF;&#x53E3;</span><br><span class="line"># udp port used for kcp protocol, it can be same with &apos;bind_port&apos;</span><br><span class="line"># if not set, kcp is disabled in frps</span><br><span class="line">kcp_bind_port = frp&#x63D0;&#x4F9B;&#x670D;&#x52A1;&#x7684;&#x7AEF;&#x53E3;</span><br><span class="line"># if you want to configure or reload frps by dashboard, dashboard_port must be set</span><br><span class="line">dashboard_port = frp&#x7684;&#x63A7;&#x5236;&#x53F0;&#x670D;&#x52A1;&#x7AEF;&#x53E3;</span><br><span class="line"># dashboard assets directory(only for debug mode)</span><br><span class="line">dashboard_user = &#x767B;&#x5F55;&#x63A7;&#x5236;&#x53F0;&#x7684;&#x7528;&#x6237;&#x540D;</span><br><span class="line">dashboard_pwd = &#x767B;&#x5F55;&#x63A7;&#x5236;&#x53F0;&#x7684;&#x5BC6;&#x7801;</span><br><span class="line">#&#x81EA;&#x5B9A;&#x4E49;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;</span><br><span class="line">subdomain_host = frps.&#x57DF;&#x540D;.top //&#x6BD4;&#x5982; news.qq.com&#x5C31;&#x662F;www.qq.com&#x7684;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;</span><br><span class="line"># assets_dir = ./static</span><br><span class="line">vhost_http_port = frp&#x8FDB;&#x884C;http&#x7A7F;&#x900F;&#x7684;http</span><br><span class="line">vhost_https_port = frp&#x8FDB;&#x884C;http&#x7A7F;&#x900F;&#x7684;https</span><br><span class="line"># console or real logFile path like ./frps.log</span><br><span class="line">log_file = ./frps.log</span><br><span class="line"># debug, info, warn, error</span><br><span class="line">log_level = info</span><br><span class="line">log_max_days = 3</span><br><span class="line"># auth token</span><br><span class="line">token = &#x52A0;&#x5BC6;&#x5B57;&#x6BB5;</span><br><span class="line"># only allow frpc to bind ports you list, if you set nothing, there won&apos;t be any limit</span><br><span class="line">#allow_ports = 1-65535</span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>&#x5BA2;&#x6237;&#x7AEF;&#x914D;&#x7F6E;<code>frpc.ini</code><br></p><figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line"></span><br><span class="line">server_addr = &#x516C;&#x7F51;IP&#x5730;&#x5740;</span><br><span class="line">server_port = frp&#x63D0;&#x4F9B;&#x670D;&#x52A1;&#x7684;&#x7AEF;&#x53E3;</span><br><span class="line">token = &#x52A0;&#x5BC6;&#x5B57;&#x6BB5;</span><br><span class="line"></span><br><span class="line">[web]</span><br><span class="line">type = http</span><br><span class="line">local_ip = 127.0.0.1</span><br><span class="line">local_port = 8080</span><br><span class="line">subdomain = windows</span><br><span class="line"></span><br><span class="line"># &#x5982;&#x679C;&#x6709;ssh&#x4EE3;&#x7406;&#x9700;&#x6C42;&#x53EF;&#x4EE5;&#x7EE7;&#x7EED;&#x914D;&#x7F6E;</span><br><span class="line">[ssh]</span><br><span class="line">type = tcp</span><br><span class="line">local_ip = 127.0.0.1</span><br><span class="line">local_port = 22</span><br><span class="line">remote_port = 10085</span><br><span class="line"></span><br><span class="line">server_addr&#x662F;&#x670D;&#x52A1;&#x5668;&#x7AEF;&#x7684;&#x516C;&#x7F51;IP&#x5730;&#x5740;</span><br><span class="line">server_port&#x662F;frp&#x670D;&#x52A1;&#x7AEF;&#x53E3;&#x53F7;</span><br><span class="line">auto_token&#x662F;&#x8FDE;&#x63A5;&#x670D;&#x52A1;&#x5668;&#x7684;&#x53E3;&#x4EE4;&#xFF0C;&#x5FC5;&#x987B;&#x548C;&#x670D;&#x52A1;&#x5668;&#x4FDD;&#x6301;&#x4E00;&#x81F4;&#x3002;</span><br><span class="line">[ssh_208]&#x662F;&#x5BA2;&#x6237;&#x7AEF;&#x901A;&#x8FC7;&#x670D;&#x52A1;&#x5668;&#x4E0E;&#x7528;&#x6237;&#x4E4B;&#x95F4;&#x7684;&#x901A;&#x9053;&#x540D;&#xFF0C;&#x6BCF;&#x4E2A;&#x5BA2;&#x6237;&#x7AEF;&#x5FC5;&#x987B;&#x4E0D;&#x4E00;&#x6837;</span><br><span class="line">remote_port&#x662F;&#x670D;&#x52A1;&#x5668;&#x7AEF;&#x5BF9;&#x5916;&#x63D0;&#x4F9B;&#x672C;&#x673A;&#x670D;&#x52A1;&#x7684;&#x7AEF;&#x53E3;&#x53F7;&#xFF0C;&#x5373;&#x7528;&#x6237;&#x8FDE;&#x63A5; &#x516C;&#x7F51;IP:10085&#xFF0C;&#x76F8;&#x5F53;&#x4E8E;&#x8FDE;&#x63A5;127.0.0.1:22,&#x5373;ssh&#x670D;&#x52A1;</span><br></pre></td></tr></tbody></table></figure><p></p>
+<h2 id="&#x81EA;&#x5B9A;&#x4E49;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;"><a href="#&#x81EA;&#x5B9A;&#x4E49;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;" class="headerlink" title="&#x81EA;&#x5B9A;&#x4E49;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;"></a>&#x81EA;&#x5B9A;&#x4E49;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;</h2><p>&#x5728;&#x591A;&#x4EBA;&#x540C;&#x65F6;&#x4F7F;&#x7528;&#x4E00;&#x4E2A; frps &#x65F6;&#xFF0C;&#x901A;&#x8FC7;&#x81EA;&#x5B9A;&#x4E49;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;&#x7684;&#x65B9;&#x5F0F;&#x6765;&#x4F7F;&#x7528;&#x4F1A;&#x66F4;&#x52A0;&#x65B9;&#x4FBF;<br>&#x901A;&#x8FC7;&#x5728; frps &#x7684;&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x4E2D;&#x914D;&#x7F6E; subdomain_host&#xFF0C;&#x5C31;&#x53EF;&#x4EE5;&#x542F;&#x7528;&#x8BE5;&#x7279;&#x6027;&#x3002;<br>&#x4E4B;&#x540E;&#x5728; frpc &#x7684; http&#x3001;https &#x7C7B;&#x578B;&#x7684;&#x4EE3;&#x7406;&#x4E2D;&#x53EF;&#x4EE5;&#x4E0D;&#x914D;&#x7F6E; custom_domains&#xFF0C;&#x800C;&#x662F;&#x914D;&#x7F6E;&#x4E00;&#x4E2A; subdomain &#x53C2;&#x6570;  </p>
+<p>&#x53EA;&#x9700;&#x8981;&#x5C06; *.{subdomain_host} &#x89E3;&#x6790;&#x5230; frps &#x6240;&#x5728;&#x670D;&#x52A1;&#x5668;&#x3002;&#x4E4B;&#x540E;&#x7528;&#x6237;&#x53EF;&#x4EE5;&#x901A;&#x8FC7; subdomain &#x81EA;&#x884C;&#x6307;&#x5B9A;&#x81EA;&#x5DF1;&#x7684; web &#x670D;&#x52A1;&#x6240;&#x9700;&#x8981;&#x4F7F;&#x7528;&#x7684;&#x4E8C;&#x7EA7;&#x57DF;&#x540D;&#xFF0C;&#x901A;&#x8FC7; {subdomain}.{subdomain_host} &#x6765;&#x8BBF;&#x95EE;&#x81EA;&#x5DF1;&#x7684; web &#x670D;&#x52A1;  </p>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x5047;&#x5982;&#x57DF;&#x540D;&#x4E3A;&#xFF1A;abc.com</span><br><span class="line">&#x53BB;&#x57DF;&#x540D;&#x7684;&#x63A7;&#x5236;&#x9762;&#x677F;&#x6DFB;&#x52A0;&#x89E3;&#x6790; *.frps &#x5230;&#x516C;&#x7F51;IP&#x5730;&#x5740;  </span><br><span class="line"></span><br><span class="line">&#x6839;&#x636E;&#x6211;&#x4E0A;&#x9762;&#x7684;&#x914D;&#x7F6E;</span><br><span class="line">&#x8BBF;&#x95EE;  </span><br><span class="line">http://windows.frps.abc.com:&#x3010;frp&#x8FDB;&#x884C;http&#x7A7F;&#x900F;&#x7684;http&#x7684;&#x7AEF;&#x53E3;&#x3011;/&#x9879;&#x76EE;&#x540D;</span><br><span class="line">&#x6620;&#x5C04;&#x5230;&#x672C;&#x5730;&#x7684;</span><br><span class="line">http://localhost:8080/&#x9879;&#x76EE;&#x540D;</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="frp&#x5F00;&#x6E90;&#x5730;&#x5740;"><a href="#frp&#x5F00;&#x6E90;&#x5730;&#x5740;" class="headerlink" title="frp&#x5F00;&#x6E90;&#x5730;&#x5740;"></a>frp&#x5F00;&#x6E90;&#x5730;&#x5740;</h2><p><a href="https://github.com/fatedier/frp" target="_blank" rel="noopener">https://github.com/fatedier/frp</a></p>
+<hr><script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <!--
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    ProYI
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://ProYI.github.io/post/401ca2c1.html" title="使用Frp实现内网穿透">https://ProYI.github.io/post/401ca2c1.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+-->
+
+<div class="post-copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/post/401ca2c1.html">使用Frp实现内网穿透</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 ProYI 的个人博客">ProYI</a></p>
+  <p><span>发布时间:</span>2018年11月01日 - 20:11</p>
+  <p><span>最后更新:</span>2022年02月06日 - 16:02</p>
+  <p><span>原始链接:</span><a href="/post/401ca2c1.html" title="使用Frp实现内网穿透">https://ProYI.github.io/post/401ca2c1.html</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://ProYI.github.io/post/401ca2c1.html"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a>转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+      $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+        });
+    });  
+</script>
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/frp/" rel="tag"># frp</a>
+          
+            <a href="/tags/内网穿透/" rel="tag"># 内网穿透</a>
+          
+            <a href="/tags/反向代理/" rel="tag"># 反向代理</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/906bd7c.html" rel="prev" title="版本控制工具之SVN学习">
+                <i class="fa fa-chevron-left"></i> 版本控制工具之SVN学习
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/188d7817.html" rel="next" title="JavaSE语法">
+                JavaSE语法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <a href="/">
+                <img class="site-author-image" itemprop="image"
+                  src="/images/avatar/avatar.jpg"
+                  alt="ProYI" />
+              </a>
+            
+              <p class="site-author-name" itemprop="name">ProYI</p>
+              <p class="site-description motion-element" itemprop="description">Follow the notes upon a journey,At first sight marks one's destiny...</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ProYI" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pc20131001@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-globe"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://ProYI.github.io/about/" title="关于此博客" target="_blank">关于此博客</a>
+                  </li>
+                
+              </ul>
+               <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("10/01/2018 00:00:00");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行"+daysold+"天"+hrsold+"小时"+minsold+"分"+seconds+"秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+            </div>
+          
+
+         
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#VPS"><span class="nav-number">1.</span> <span class="nav-text">VPS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#域名"><span class="nav-number">2.</span> <span class="nav-text">域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装frp"><span class="nav-number">3.</span> <span class="nav-text">安装frp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#端口配置"><span class="nav-number">4.</span> <span class="nav-text">端口配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#访问管理页面"><span class="nav-number">5.</span> <span class="nav-text">访问管理页面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改frp服务端的配置"><span class="nav-number">6.</span> <span class="nav-text">修改frp服务端的配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义二级域名"><span class="nav-number">7.</span> <span class="nav-text">自定义二级域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#frp开源地址"><span class="nav-number">8.</span> <span class="nav-text">frp开源地址</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="heart">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ProYI</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.staticfile.org/jquery/2.1.4/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  <script src="https://cdn.staticfile.org/jquery-backstretch/2.1.18/jquery.backstretch.min.js"></script>;
+  <script>
+    $("body").backstretch("/images/coder.jpg");
+  </script>
+  <script type="text/javascript" src= "/js/src/instantclick.min.js" data-no-instant></script>
+  <script data-no-instant>
+  <!-- 黑名单模式，防止不兼容-->
+  if (isInitialLoad === false) {
+    InstantClick.on('change', function(isInitialLoad) {
+        if (typeof MathJax !== 'undefined') // support MathJax
+          MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+        if (typeof prettyPrint !== 'undefined') // support google code prettify
+          prettyPrint();
+        if (typeof _hmt !== 'undefined')  // support 百度统计
+          _hmt.push(['_trackPageview', location.pathname + location.search]);
+        if (typeof ga !== 'undefined')  // support google analytics
+            ga('send', 'pageview', location.pathname + location.search);
+      }
+    });
+  InstantClick.init();</script>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

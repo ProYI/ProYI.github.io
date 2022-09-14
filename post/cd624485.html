@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#fff">
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="https://fonts.cat.net/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/logo.ico?v=5.1.4">
+
+
+
+  <link rel="mask-icon" href="/images/safari-pinned-tab.svg?v=5.1.4" color="#fff">
+
+
+
+
+
+  <meta name="keywords" content="Nginx,Https," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ProYI的冲浪时光" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="使用云服务商提供的SSL证书，将网站域名访问从Http协议配置成Https，降低web访问风险，提高安全性">
+<meta name="keywords" content="Nginx,Https">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前后端分离项目配置HTTPS">
+<meta property="og:url" content="https://ProYI.github.io/post/cd624485.html">
+<meta property="og:site_name" content="ProYI的冲浪时光">
+<meta property="og:description" content="使用云服务商提供的SSL证书，将网站域名访问从Http协议配置成Https，降低web访问风险，提高安全性">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2022-09-14T03:55:02.852Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前后端分离项目配置HTTPS">
+<meta name="twitter:description" content="使用云服务商提供的SSL证书，将网站域名访问从Http协议配置成Https，降低web访问风险，提高安全性">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":true,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"perspectiveLeftIn","post_header":"fadeIn","post_body":"fadeIn","coll_header":"perspectiveLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://ProYI.github.io/post/cd624485.html"/>
+
+
+
+
+
+  <title>前后端分离项目配置HTTPS | ProYI的冲浪时光</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-127080397-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ProYI的冲浪时光</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">with TT, so great!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-top">
+          <a href="/top/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-signal"></i> <br />
+            
+            top
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <!---->
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://ProYI.github.io/post/cd624485.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ProYI">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ProYI的冲浪时光">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">前后端分离项目配置HTTPS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-05T00:10:09+08:00">
+                2019-03-05
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2022-09-14T11:55:02+08:00">
+                2022-09-14
+              </time>
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/post/cd624485.html" class="leancloud_visitors" data-flag-title="前后端分离项目配置HTTPS">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.4k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p></p><p class="description">&#x4F7F;&#x7528;&#x4E91;&#x670D;&#x52A1;&#x5546;&#x63D0;&#x4F9B;&#x7684;SSL&#x8BC1;&#x4E66;&#xFF0C;&#x5C06;&#x7F51;&#x7AD9;&#x57DF;&#x540D;&#x8BBF;&#x95EE;&#x4ECE;Http&#x534F;&#x8BAE;&#x914D;&#x7F6E;&#x6210;Https&#xFF0C;&#x964D;&#x4F4E;web&#x8BBF;&#x95EE;&#x98CE;&#x9669;&#xFF0C;&#x63D0;&#x9AD8;&#x5B89;&#x5168;&#x6027;</p><br><a id="more"></a><p></p>
+<h2 id="&#x524D;&#x8A00;"><a href="#&#x524D;&#x8A00;" class="headerlink" title="&#x524D;&#x8A00;"></a>&#x524D;&#x8A00;</h2><p>&#x73B0;&#x5728;&#x516C;&#x53F8;&#x5B98;&#x7F51;&#x4E0A;&#x7EBF;&#x4E24;&#x4E09;&#x4E2A;&#x6708;&#x4E86;&#xFF0C;&#x4E4B;&#x524D;&#x4E00;&#x76F4;&#x6CA1;&#x7406;&#x9ED8;&#x8BA4;&#x4F7F;&#x7528;Http&#x534F;&#x8BAE;&#x5728;chrome&#x6D4F;&#x89C8;&#x5668;&#x4E2D;&#x63D0;&#x793A;&#x4E0D;&#x5B89;&#x5168;&#x7684;&#x95EE;&#x9898;&#x3002;&#x6700;&#x8FD1;&#x9886;&#x5BFC;&#x770B;&#x5230;&#x540E;&#xFF0C;&#x8868;&#x793A;&#x8FD9;&#x4E2A;&#x63D0;&#x793A;&#x5BF9;&#x7528;&#x6237;&#x6765;&#x8BF4;&#x4E0D;&#x53CB;&#x597D;&#xFF0C;&#x4F1A;&#x7ED9;&#x7528;&#x6237;&#x4E00;&#x79CD;&#x6211;&#x4EEC;&#x7F51;&#x7AD9;&#x4E0D;&#x5B89;&#x5168;&#x7684;&#x4FE1;&#x53F7;&#xFF0C;&#x7814;&#x7A76;&#x4E00;&#x4E0B;&#x600E;&#x4E48;&#x53BB;&#x6389;&#x8FD9;&#x4E2A;&#x63D0;&#x793A;&#x3002;  </p>
+<p>&#x7ECF;&#x5E38;&#x5173;&#x6CE8;&#x4E92;&#x8054;&#x7F51;&#x65B0;&#x95FB;&#x7684;&#x90FD;&#x77E5;&#x9053;&#x524D;&#x51E0;&#x5E74;&#x7684;&#x5FC3;&#x810F;&#x6D41;&#x8840;&#x6F0F;&#x6D1E;&#xFF0C;&#x4ECE;&#x90A3;&#x8D77;web&#x65B9;&#x9762;&#x7684;&#x5404;&#x79CD;&#x7F51;&#x7EDC;&#x5B89;&#x5168;&#x6F0F;&#x6D1E;&#x5C31;&#x8D8A;&#x6765;&#x8D8A;&#x9891;&#x7E41;&#x5E76;&#x4E14;&#x660E;&#x663E;&#x7684;&#x66B4;&#x9732;&#x51FA;&#x6765;&#x3002;&#x6240;&#x4EE5;&#x5404;&#x5927;&#x6D4F;&#x89C8;&#x5668;&#x5382;&#x5546;&#x4E5F;&#x503E;&#x5411;&#x4E8E;&#x7763;&#x4FC3;&#x5404;&#x4E2A;&#x7F51;&#x7AD9;&#x670D;&#x52A1;&#x63D0;&#x4F9B;&#x8005;&#x5C06;&#x7F51;&#x7AD9;&#x4ECE;Http&#x5347;&#x7EA7;&#x5230;&#x66F4;&#x52A0;&#x5B89;&#x5168;&#x7684;Https&#x534F;&#x8BAE;&#xFF0C;&#x6240;&#x4EE5;&#x5728;chrome&#x3001;Firefox&#x7B49;&#x6D4F;&#x89C8;&#x5668;&#x4E2D;&#x8BBF;&#x95EE;Http&#x7F51;&#x9875;&#xFF0C;&#x6D4F;&#x89C8;&#x5668;&#x4F1A;&#x63D0;&#x793A;&#x4E0D;&#x5B89;&#x5168;&#x7684;&#x8FDE;&#x63A5;&#xFF0C;&#x5BB9;&#x6613;&#x53D7;&#x5230;&#x653B;&#x51FB;&#x3002;  </p>
+<p>&#x4ECE;web&#x53D1;&#x5C55;&#x7684;&#x8D8B;&#x52BF;&#x6765;&#x770B;&#xFF0C;Https&#x5347;&#x7EA7;&#x662F;&#x5FC5;&#x7136;&#x8D8B;&#x52BF;&#x3002;Google&#x3001;&#x767E;&#x5EA6;&#x7B49;&#x641C;&#x7D22;&#x5F15;&#x64CE;&#x660E;&#x786E;&#x8868;&#x793A;Https&#x7F51;&#x7AD9;&#x5728;&#x540C;&#x7B49;&#x6761;&#x4EF6;&#x4E0B;&#xFF0C;&#x76F8;&#x8F83;&#x4E8E;&#x4F20;&#x7EDF;&#x7684;Http&#x7F51;&#x7AD9;&#x4F1A;&#x6709;&#x66F4;&#x9AD8;&#x7684;&#x6743;&#x91CD;&#x5C55;&#x793A;&#xFF0C;&#x6392;&#x540D;&#x66F4;&#x52A0;&#x9760;&#x524D;&#xFF1B;Web&#x529F;&#x80FD;&#x65E5;&#x76CA;&#x5F3A;&#x5927;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#xFF0C;&#x9700;&#x8981;&#x627F;&#x8F7D;&#x66F4;&#x52A0;&#x91CD;&#x8981;&#x7684;&#x4E1A;&#x52A1;&#xFF0C;&#x66F4;&#x9AD8;&#x7EA7;&#x522B;&#x7684;&#x5B89;&#x5168;&#x4FDD;&#x969C;&#x4E5F;&#x662F;&#x5FC5;&#x987B;&#x8FDB;&#x884C;&#x7684;&#x3002; </p>
+<p>&#x81EA;&#x5DF1;&#x505A;demo&#x7684;&#x65F6;&#x5019;&#xFF0C;&#x4E3B;&#x8981;&#x7CBE;&#x529B;&#x90FD;&#x5728;&#x540E;&#x7AEF;&#x529F;&#x80FD;&#x7684;&#x5B9E;&#x73B0;&#xFF0C;&#x8FD8;&#x771F;&#x6CA1;&#x914D;&#x7F6E;&#x8FC7;Https&#x662F;&#x5982;&#x4F55;&#x5B9E;&#x73B0;&#x7684;&#xFF0C;&#x521A;&#x597D;&#x7814;&#x7A76;&#x7814;&#x7A76;&#xFF01;  </p>
+<h2 id="Https&#x914D;&#x7F6E;&#x51C6;&#x5907;"><a href="#Https&#x914D;&#x7F6E;&#x51C6;&#x5907;" class="headerlink" title="Https&#x914D;&#x7F6E;&#x51C6;&#x5907;"></a>Https&#x914D;&#x7F6E;&#x51C6;&#x5907;</h2><p>Https&#x914D;&#x7F6E;&#x4E3B;&#x8981;&#x5B9E;&#x73B0;&#x5C31;&#x662F;&#x7531;&#x4E00;&#x4E2A;&#x516C;&#x8BA4;&#x7684;&#x7B2C;&#x4E09;&#x65B9;&#x673A;&#x6784;&#x6765;&#x7B7E;&#x53D1;&#x8BC1;&#x4E66;&#xFF0C;&#x5BA2;&#x6237;&#x7AEF;&#x8BBF;&#x95EE;&#x65F6;&#x4E0B;&#x8F7D;&#x516C;&#x94A5;&#xFF0C;&#x670D;&#x52A1;&#x7AEF;&#x5B58;&#x5728;&#x79C1;&#x94A5;&#xFF0C;web&#x4EA4;&#x4E92;&#x8FC7;&#x7A0B;&#x4E2D;&#x4F7F;&#x7528;&#x8BC1;&#x4E66;&#x6765;&#x5BF9;&#x4F1A;&#x8BDD;&#x8FDB;&#x884C;&#x52A0;&#x5BC6;&#xFF0C;&#x9632;&#x6B62;&#x4E2D;&#x95F4;&#x4EBA;&#x653B;&#x51FB;&#x3002;  </p>
+<p>&#x6211;&#x4EEC;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;OpenSSL&#x6765;&#x81EA;&#x884C;&#x7B7E;&#x53D1;&#x8BC1;&#x4E66;&#xFF0C;&#x4F46;&#x662F;&#x81EA;&#x884C;&#x7B7E;&#x53D1;&#x7684;&#x8BC1;&#x4E66;&#x5728;&#x4E92;&#x8054;&#x7F51;&#x4E2D;&#x5176;&#x4ED6;&#x670D;&#x52A1;&#x5546;&#x5E76;&#x4E0D;&#x8BA4;&#x8BC6;&#xFF0C;&#x6240;&#x4EE5;&#x8FD9;&#x4E2A;&#x8BC1;&#x4E66;&#x7684;&#x6548;&#x529B;&#x5C31;&#x5F88;&#x6709;&#x9650;&#xFF0C;&#x6240;&#x4EE5;&#x624D;&#x4F1A;&#x51FA;&#x73B0;&#x5546;&#x4E1A;&#x4E0A;&#x5927;&#x578B;&#x7684;&#x8BC1;&#x4E66;&#x7B7E;&#x53D1;&#x673A;&#x6784;&#x3002;&#x8FD9;&#x4E9B;&#x673A;&#x6784;&#x7B7E;&#x53D1;&#x7684;&#x8BC1;&#x4E66;&#x662F;&#x53D7;&#x5230;&#x4E3B;&#x6D41;&#x6D4F;&#x89C8;&#x5668;&#x5382;&#x5546;&#x8BA4;&#x53EF;&#x7684;&#xFF0C;&#x5177;&#x6709;&#x8F83;&#x9AD8;&#x7684;&#x5B89;&#x5168;&#x6027;&#x3002;  </p>
+<p>&#x73B0;&#x5728;&#x56FD;&#x5185;&#x4E3B;&#x6D41;&#x7684;&#x57DF;&#x540D;&#x63D0;&#x4F9B;&#x5546;&#x90FD;&#x4F1A;&#x63D0;&#x4F9B;&#x514D;&#x8D39;&#x8BC1;&#x4E66;&#xFF0C;&#x5F53;&#x7136;&#x5982;&#x679C;&#x8981;&#x5B9E;&#x73B0;&#x66F4;&#x9AD8;&#x9636;&#x7684;&#x8BC1;&#x4E66;&#x8FD8;&#x662F;&#x8D39;&#x7528;&#x6602;&#x8D35;&#x3002;&#x6240;&#x4EE5;&#x4E0B;&#x8F7D;&#x57DF;&#x540D;&#x670D;&#x52A1;&#x5546;&#x63D0;&#x4F9B;&#x7684;&#x514D;&#x8D39;SSL&#x8BC1;&#x4E66;&#xFF0C;&#x4E0D;&#x540C;&#x7684;web&#x670D;&#x52A1;&#x5668;&#x6709;&#x4E0D;&#x540C;&#x7684;&#x540E;&#x7F00;&#xFF0C;&#x6BD4;&#x5982;&#x6211;&#x4EEC;&#x524D;&#x7AEF;&#x4F7F;&#x7528;&#x7684;&#x662F;Nginx&#x4F5C;&#x4E3A;&#x9875;&#x9762;&#x670D;&#x52A1;&#x5668;&#xFF0C;&#x6240;&#x4EE5;&#x4F7F;&#x7528;&#x7684;&#x662F;<code>XXX_Nginx.crt</code>&#x6587;&#x4EF6;&#xFF0C;&#x540C;&#x65F6;&#x8FD8;&#x6709;&#x4E00;&#x4E2A;&#x5BF9;&#x5E94;&#x7684;<code>XXX_Nginx.key</code>&#x6587;&#x4EF6;  </p>
+<h2 id="&#x90E8;&#x7F72;&#x8FC7;&#x7A0B;"><a href="#&#x90E8;&#x7F72;&#x8FC7;&#x7A0B;" class="headerlink" title="&#x90E8;&#x7F72;&#x8FC7;&#x7A0B;"></a>&#x90E8;&#x7F72;&#x8FC7;&#x7A0B;</h2><p>&#x9879;&#x76EE;&#x7ED3;&#x6784;&#x662F;&#x524D;&#x7AEF;&#x9875;&#x9762;&#x653E;&#x7F6E;&#x5728;Nginx&#x4E0B;&#xFF0C;&#x540C;&#x65F6;Nginx&#x76D1;&#x542C;80&#x7AEF;&#x53E3;&#xFF0C;&#x8FDB;&#x884C;&#x63A5;&#x53E3;&#x8BBF;&#x95EE;&#x65F6;&#xFF0C;&#x8BF7;&#x5C06;&#x6C42;&#x8F6C;&#x53D1;&#x81F3;8080&#x7AEF;&#x53E3;&#x7684;&#x540E;&#x7AEF;Tomcat&#x670D;&#x52A1;&#x5668;&#xFF0C;&#x6BD4;&#x8F83;&#x7B80;&#x5355;&#x7684;&#x524D;&#x540E;&#x7AEF;&#x5206;&#x79BB;<br>&#x7531;&#x4E8E;&#x662F;&#x7531;Nginx&#x8FDB;&#x884C;&#x63A7;&#x5236;&#x8BBF;&#x95EE;&#x7684;&#xFF0C;&#x6240;&#x4EE5;&#x76F4;&#x63A5;&#x5C06;&#x6B63;&#x5F0F;&#x90E8;&#x7F72;&#x5728;Nginx&#x670D;&#x52A1;&#x5668;&#x4E2D;  </p>
+<ol>
+<li>&#x5728;Nginx&#x5B89;&#x88C5;&#x76EE;&#x5F55;&#x4E2D;&#x65B0;&#x5EFA;<code>cert</code>&#x6587;&#x4EF6;&#x5939;&#xFF0C;&#x5C06;&#x8BC1;&#x4E66;&#x53CA;&#x5BC6;&#x94A5;&#x6587;&#x4EF6;&#x62F7;&#x8D1D;&#x8FDB;&#x53BB;&#xFF08;&#x5176;&#x5B9E;&#x5728;&#x670D;&#x52A1;&#x5668;&#x4EFB;&#x4F55;&#x5730;&#x65B9;&#x90FD;&#x53EF;&#x4EE5;&#xFF0C;&#x53EA;&#x8981;&#x4E4B;&#x540E;Nginx&#x914D;&#x7F6E;&#x6587;&#x4EF6;&#x80FD;&#x627E;&#x5230;&#x5C31;&#x884C;&#xFF09;  </li>
+<li><p>&#x4FEE;&#x6539;Nginx&#x914D;&#x7F6E;&#x6587;&#x4EF6; <code>Nginx/conf/nginx.conf</code><br> &#x4FEE;&#x6539;&#x524D;&#xFF0C;Nginx&#x662F;&#x76D1;&#x542C;Http&#x7684;&#x9ED8;&#x8BA4;&#x7AEF;&#x53E3;&#xFF1A;80&#x7AEF;&#x53E3;&#xFF0C;&#x7136;&#x540E;&#x9759;&#x6001;&#x8D44;&#x6E90;&#x76F4;&#x63A5;&#x8BBF;&#x95EE;Nginx&#x4E0B;&#x7684;&#x9759;&#x6001;&#x9875;&#x9762;&#xFF0C;&#x63A5;&#x53E3;&#x8F6C;&#x53D1;&#x81F3;8080<br> &#x4FEE;&#x6539;&#x540E;&#xFF0C;&#x6211;&#x4EEC;&#x9700;&#x8981;&#x76D1;&#x542C;Https&#x7684;&#x9ED8;&#x8BA4;&#x7AEF;&#x53E3;&#xFF1A;443&#x7AEF;&#x53E3;&#xFF0C;&#x5B9E;&#x73B0;&#x4E4B;&#x524D;80&#x7AEF;&#x53E3;&#x7684;&#x6240;&#x6709;&#x4EE3;&#x7406;&#x6548;&#x679C;&#xFF0C;&#x540C;&#x65F6;&#x76D1;&#x542C;80&#x7AEF;&#x53E3;&#xFF0C;&#x5E76;&#x5C06;&#x6240;&#x6709;80&#x7AEF;&#x53E3;&#x8BBF;&#x95EE;&#x5747;&#x8F6C;&#x53D1;&#x81F3;443&#x7AEF;&#x53E3;&#x5B8C;&#x6210;&#x5DE5;&#x4F5C;<br> &#x8FD9;&#x6837;&#x5C31;&#x53EF;&#x4EE5;&#x5B9E;&#x73B0;&#x5373;&#x4F7F;&#x7528;&#x6237;&#x5728;&#x8BBF;&#x95EE;&#x7F51;&#x7AD9;&#x5730;&#x5740;&#x65F6;&#x8F93;&#x5165;<a href="">Http://xxx.xxx.com</a>&#x4E5F;&#x4F1A;&#x81EA;&#x52A8;&#x8F6C;&#x6362;&#x6210;<a href="">Https://xxx.xxx.com</a></p>
+ <figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"></span><br><span class="line">http {</span><br><span class="line">    include       mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    keepalive_timeout  50;</span><br><span class="line"></span><br><span class="line">    server {</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  xxx.xxx.com;</span><br><span class="line">        rewrite ^/(.*) https://$server_name$request_uri? permanent;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    server {</span><br><span class="line">        listen       443;</span><br><span class="line">        server_name  xxx.xxx.com;</span><br><span class="line"></span><br><span class="line">        ssl on;</span><br><span class="line">        ssl_certificate   cert/www.xxx.xxx.crt;(&#x521A;&#x521A;&#x7684;&#x8BC1;&#x4E66;&#x5730;&#x5740;)</span><br><span class="line">        ssl_certificate_key  cert/www.xxx.xxx.key;(&#x521A;&#x521A;&#x7684;key&#x5730;&#x5740;)</span><br><span class="line">        ssl_session_timeout 5m;</span><br><span class="line">        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;</span><br><span class="line">        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;</span><br><span class="line">        ssl_prefer_server_ciphers on;</span><br><span class="line"></span><br><span class="line">        location / {</span><br><span class="line">            root   html;</span><br><span class="line">            index  index.html index.htm;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        location /login {</span><br><span class="line">            proxy_pass   http://localhost:8080;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        error_page   500 502 503 504  /50x.html;</span><br><span class="line">        location = /50x.html {</span><br><span class="line">            root   html;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>&#x91CD;&#x542F;Nginx&#x670D;&#x52A1;  </p>
+ <figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x7531;&#x4E8E;&#x672C;&#x5730;&#x662F;Windows&#x7248;&#x672C;  </span><br><span class="line">CMD&#x547D;&#x4EE4;&#x884C;&#x4E2D;&#x7684;&#x547D;&#x4EE4;&#xFF1A;  </span><br><span class="line">start nginx  &#x542F;&#x52A8;Nginx&#x670D;&#x52A1;  </span><br><span class="line">nginx -s quit &#x5173;&#x95ED;Nginx&#x670D;&#x52A1;</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>&#x6D4F;&#x89C8;&#x5668;&#x8BBF;&#x95EE;&#x5BF9;&#x5E94;&#x7684;&#x57DF;&#x540D;&#xFF0C;&#x6D4F;&#x89C8;&#x5668;&#x663E;&#x793A;<code>&#x5C0F;&#x9501;&#x5934;</code>&#x56FE;&#x6807;&#xFF0C;&#x540C;&#x65F6;&#x57DF;&#x540D;&#x524D;&#x6539;&#x53D8;&#x4E3A;<code>https</code><br> &#x6709;&#x53EF;&#x80FD;&#x9700;&#x8981;&#x6E05;&#x7406;&#x6D4F;&#x89C8;&#x5668;&#x7F13;&#x5B58;&#x540E;&#x624D;&#x80FD;&#x663E;&#x793A;&#x6210;&#x529F;<br>&#x81F3;&#x6B64;&#xFF0C;&#x4F7F;&#x7528;Nginx&#x914D;&#x7F6E;Https&#x5B8C;&#x6210;  </p>
+</li>
+</ol>
+<h2 id="&#x540E;&#x8BB0;"><a href="#&#x540E;&#x8BB0;" class="headerlink" title="&#x540E;&#x8BB0;"></a>&#x540E;&#x8BB0;</h2><p>&#x6B64;&#x6587;&#x4EC5;&#x4EC5;&#x8BB0;&#x5F55;&#x4E00;&#x4E0B;&#x81EA;&#x5DF1;&#x7684;&#x914D;&#x7F6E;&#x8FC7;&#x7A0B;&#xFF0C;&#x5BF9;&#x4E8E;Https&#x7684;&#x8BA4;&#x77E5;&#x975E;&#x5E38;&#x6D45;&#x8584;&#xFF0C;&#x4E4B;&#x540E;&#x8FD8;&#x9700;&#x8981;&#x7EE7;&#x7EED;&#x52A0;&#x6DF1;Https&#x7684;&#x5B66;&#x4E60;&#x3002;  </p>
+<p>Https&#x5E76;&#x975E;&#x662F;Http&#x7684;&#x5B8C;&#x7F8E;&#x5347;&#x7EA7;&#xFF0C;&#x53EA;&#x662F;&#x6539;&#x8FDB;&#xFF0C;&#x5E76;&#x4E14;&#x6709;&#x7814;&#x7A76;&#x8868;&#x660E;Https&#x5728;Http&#x4E09;&#x6B21;&#x63E1;&#x624B;&#x7684;&#x57FA;&#x7840;&#x4E0A;&#x52A0;&#x4E0A;&#x901A;&#x8BAF;&#x52A0;&#x5BC6;&#x53CA;&#x89E3;&#x5BC6;&#x8FC7;&#x7A0B;&#xFF0C;&#x6240;&#x4EE5;&#x901F;&#x5EA6;&#x76F8;&#x8F83;&#x4E8E;http&#x662F;&#x6709;&#x6240;&#x4E0B;&#x964D;&#x7684;&#xFF0C;&#x4F46;&#x662F;&#x5B89;&#x5168;&#x6027;&#x5927;&#x5927;&#x63D0;&#x9AD8;&#xFF0C;&#x6240;&#x4EE5;Https&#x5E76;&#x975E;&#x662F;&#x5B8C;&#x7F8E;&#x7684;&#xFF0C;&#x53EA;&#x80FD;&#x8BF4;&#x662F;&#x73B0;&#x9636;&#x6BB5;&#x76F8;&#x5BF9;&#x8F83;&#x4E3A;&#x7406;&#x60F3;&#x7684;&#x4E00;&#x79CD;web&#x901A;&#x4FE1;&#x65B9;&#x5F0F;&#x3002;  </p>
+<p>&#x5982;&#x6709;&#x9519;&#x8BEF;&#xFF0C;&#x656C;&#x8BF7;&#x544A;&#x77E5;&#xFF0C;&#x4F1A;&#x53CA;&#x65F6;&#x4FEE;&#x6539;&#xFF0C;&#x8C22;&#x8C22;&#xFF01;</p>
+<hr><script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <!--
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    ProYI
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://ProYI.github.io/post/cd624485.html" title="前后端分离项目配置HTTPS">https://ProYI.github.io/post/cd624485.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+-->
+
+<div class="post-copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>本文标题:</span><a href="/post/cd624485.html">前后端分离项目配置HTTPS</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 ProYI 的个人博客">ProYI</a></p>
+  <p><span>发布时间:</span>2019年03月05日 - 00:03</p>
+  <p><span>最后更新:</span>2022年09月14日 - 11:09</p>
+  <p><span>原始链接:</span><a href="/post/cd624485.html" title="前后端分离项目配置HTTPS">https://ProYI.github.io/post/cd624485.html</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://ProYI.github.io/post/cd624485.html"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a>转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+      $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+        });
+    });  
+</script>
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+          
+            <a href="/tags/Https/" rel="tag"># Https</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/c851da0d.html" rel="prev" title="面试题-遍历二叉树">
+                <i class="fa fa-chevron-left"></i> 面试题-遍历二叉树
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/a831b05.html" rel="next" title="RBAC模块时的一点点遍历问题">
+                RBAC模块时的一点点遍历问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <a href="/">
+                <img class="site-author-image" itemprop="image"
+                  src="/images/avatar/avatar.jpg"
+                  alt="ProYI" />
+              </a>
+            
+              <p class="site-author-name" itemprop="name">ProYI</p>
+              <p class="site-description motion-element" itemprop="description">Follow the notes upon a journey,At first sight marks one's destiny...</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/ProYI" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:pc20131001@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-globe"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://ProYI.github.io/about/" title="关于此博客" target="_blank">关于此博客</a>
+                  </li>
+                
+              </ul>
+               <div id="days"></div>
+<script>
+function show_date_time(){
+window.setTimeout("show_date_time()", 1000);
+BirthDay=new Date("10/01/2018 00:00:00");
+today=new Date();
+timeold=(today.getTime()-BirthDay.getTime());
+sectimeold=timeold/1000
+secondsold=Math.floor(sectimeold);
+msPerDay=24*60*60*1000
+e_daysold=timeold/msPerDay
+daysold=Math.floor(e_daysold);
+e_hrsold=(e_daysold-daysold)*24;
+hrsold=setzero(Math.floor(e_hrsold));
+e_minsold=(e_hrsold-hrsold)*60;
+minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+seconds=setzero(Math.floor((e_minsold-minsold)*60));
+document.getElementById('days').innerHTML="已运行"+daysold+"天"+hrsold+"小时"+minsold+"分"+seconds+"秒";
+}
+function setzero(i){
+if (i<10)
+{i="0" + i};
+return i;
+}
+show_date_time();
+</script>
+            </div>
+          
+
+         
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Https配置准备"><span class="nav-number">2.</span> <span class="nav-text">Https配置准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署过程"><span class="nav-number">3.</span> <span class="nav-text">部署过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love" id="heart">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ProYI</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="https://cdn.staticfile.org/jquery/2.1.4/jquery.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  <script src="https://cdn.staticfile.org/jquery-backstretch/2.1.18/jquery.backstretch.min.js"></script>;
+  <script>
+    $("body").backstretch("/images/coder.jpg");
+  </script>
+  <script type="text/javascript" src= "/js/src/instantclick.min.js" data-no-instant></script>
+  <script data-no-instant>
+  <!-- 黑名单模式，防止不兼容-->
+  if (isInitialLoad === false) {
+    InstantClick.on('change', function(isInitialLoad) {
+        if (typeof MathJax !== 'undefined') // support MathJax
+          MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+        if (typeof prettyPrint !== 'undefined') // support google code prettify
+          prettyPrint();
+        if (typeof _hmt !== 'undefined')  // support 百度统计
+          _hmt.push(['_trackPageview', location.pathname + location.search]);
+        if (typeof ga !== 'undefined')  // support google analytics
+            ga('send', 'pageview', location.pathname + location.search);
+      }
+    });
+  InstantClick.init();</script>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>
